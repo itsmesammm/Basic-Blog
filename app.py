@@ -6,7 +6,14 @@ app = Flask(__name__)
 # load blog posts from JSON
 def load_blog_posts():
     with open("data/blog_posts.json", "r") as file:
-        return json.load(file)
+        blog_posts = json.load(file)
+
+    # Ensure every post has a "likes" field
+    for post in blog_posts:
+        if 'likes' not in post:
+            post['likes'] = 0
+
+    return blog_posts
 
 @app.route('/')
 def index():
@@ -72,6 +79,25 @@ def update(post_id):
 
     # If its a GET request, render the update form
     return render_template('update.html', post=post)
+
+@app.route('/like/<int:post_id>', methods=['POST'])
+def like(post_id):
+    blog_posts = load_blog_posts()
+
+    # Find the post with the given ID
+    post = next((p for p in blog_posts if p['id'] == post_id), None)
+    if post is None:
+        return "Post not found", 404
+
+    # Increment the likes
+    post['likes'] += 1
+
+    # Save the updated list back to the JSON file
+    with open("data/blog_posts.json", "w") as file:
+        json.dump(blog_posts, file, indent = 4)
+
+    # Redirect back to the index page
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

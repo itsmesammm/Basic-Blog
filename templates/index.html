@@ -20,6 +20,9 @@
         <a href="/update/{{ post.id }}">
             <button type="button">Update</button>
         </a>
+        <form action="/like/{{ post.id }}" method="post" style="display: inline;">
+            <button type="submit">Like ({{ post.likes }})</button>
+        </form>
     </div>
     {% endfor %}
 </body>
